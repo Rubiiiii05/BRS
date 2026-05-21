@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Birthday Countdown for Princess</title>
+    <style>
+        body {
+            background-color: #ffd1dc; /* A soft princess pink */
+            font-family: 'Georgia', 'serif';
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden; /* Prevent scrolling if the firework is too big */
+        }
+
+        h1 {
+            color: #d81b60; /* A stronger pink/crimson for contrast */
+            font-size: 3em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        #timer {
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            font-size: 1.5em;
+            color: #4a4a4a;
+        }
+
+        .count-block {
+            display: inline-block;
+            margin: 0 15px;
+        }
+
+        .number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #d81b60;
+        }
+
+        .label {
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        /* The hidden "Happy Birthday" text */
+        #birthday-message {
+            display: none; /* Initially hidden */
+            font-size: 5em;
+            color: gold;
+            text-shadow: 0 0 10px rgba(255,215,0,0.7);
+            font-family: 'Sacramento', cursive; /* Elegant script */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+        }
+
+        /* Confetti simulation (very basic) */
+        #confetti-container {
+            display: none; /* Initially hidden */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Let clicks pass through */
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: gold;
+            opacity: 0.7;
+            border-radius: 50%;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="countdown-wrapper">
+        <h1>Counting down to Princess's Big Day!</h1>
+        <div id="timer">
+            <div class="count-block">
+                <div id="days" class="number">00</div>
+                <div class="label">Days</div>
+            </div>
+            <div class="count-block">
+                <div id="hours" class="number">00</div>
+                <div class="label">Hours</div>
+            </div>
+            <div class="count-block">
+                <div id="minutes" class="number">00</div>
+                <div class="label">Minutes</div>
+            </div>
+            <div class="count-block">
+                <div id="seconds" class="number">00</div>
+                <div class="label">Seconds</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="birthday-message">Happy Birthday, Princess!</div>
+
+    <div id="confetti-container"></div>
+
+    <script>
+        // Define the target date (23 May 2026, midnight)
+        // Correct format for JavaScript Date constructor
+        const targetDate = new Date("May 23, 2026 00:00:00").getTime();
+
+        // Reference HTML elements
+        const daysSpan = document.getElementById("days");
+        const hoursSpan = document.getElementById("hours");
+        const minutesSpan = document.getElementById("minutes");
+        const secondsSpan = document.getElementById("seconds");
+        const countdownWrapper = document.getElementById("countdown-wrapper");
+        const birthdayMessage = document.getElementById("birthday-message");
+        const confettiContainer = document.getElementById("confetti-container");
+
+        // Simple function to add leading zeros (e.g., '5' becomes '05')
+        function formatNumber(num) {
+            return num < 10 ? "0" + num : num;
+        }
+
+        // --- Confetti Generation ---
+        function createConfetti() {
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = Math.random() * 100 + 'vw'; // Random horizontal starting point
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's'; // Random fall duration (2-5s)
+                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`; // Random color!
+                confettiContainer.appendChild(confetti);
+            }
+        }
+
+        // --- Main Countdown Function ---
+        const countdownInterval = setInterval(function() {
+            // Get current time
+            const now = new Date().getTime();
+
+            // Find the distance between now and the target date
+            const distance = targetDate - now;
+
+            // Check if the countdown is finished
+            if (distance < 0) {
+                clearInterval(countdownInterval); // Stop the timer
+
+                // Hide the countdown
+                countdownWrapper.style.display = "none";
+
+                // Show the Happy Birthday message
+                birthdayMessage.style.display = "block";
+
+                // Start confetti!
+                confettiContainer.style.display = "block";
+                createConfetti();
+                
+                // Keep creating confetti for a few seconds
+                setTimeout(() => {
+                   setInterval(createConfetti, 1000); 
+                }, 2000);
+
+                return; // End the function
+            }
+
+            // Time calculations for days, hours, minutes, and seconds
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // Display the results in the HTML elements, formatted with leading zeros
+            daysSpan.innerHTML = formatNumber(days);
+            hoursSpan.innerHTML = formatNumber(hours);
+            minutesSpan.innerHTML = formatNumber(minutes);
+            secondsSpan.innerHTML = formatNumber(seconds);
+
+        }, 1000); // Update every second
+
+    </script>
+</body>
+</html>
